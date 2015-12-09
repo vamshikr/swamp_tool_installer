@@ -68,8 +68,8 @@ effort=max
 main-class=edu.umd.cs.findbugs.FindBugs2
 EOF
 
-    [[ -f "$exclude" ]] && echo "exclude-bugs=\${VMINPUTDIR}/$exclude" >> "$filepath"
-    [[ -f "$include" ]] && echo "include-bugs=\${VMINPUTDIR}/$include" >> "$filepath"
+    [[ -f "$exclude" ]] && echo "exclude-bugs=\${VMINPUTDIR}/$(basename $exclude)" >> "$filepath"
+    [[ -f "$include" ]] && echo "include-bugs=\${VMINPUTDIR}/$(basename $include)" >> "$filepath"
     [[ -n "$plugins" ]] && echo "plugin=$plugins" >> "$filepath"
 }
 
