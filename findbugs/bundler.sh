@@ -151,7 +151,10 @@ Usage:
 Optional arguments:
   [(-O|--outdir) <path-to-output-dir>]  #Path to the directory to create/copy files. Default is \$PWD
   [(-R|--url) <url-for-the-archive] URL for the tool, If the url starts with http(s), file is downloaded from the internet
-  [(-P|--plugin) <url-for-plugin>] URL for a plugin, multiple plugins can be specified  
+  [(-P|--plugin) <url-for-plugin>] URL for a plugin, multiple plugins can be specified
+  [(-E|--exclude) <exclude-bugs-filepath>] File contains bug patters which must not be checked
+  [(-I|--include) <include-bugs-filepath>] File contains bug patters which must be checked
+
 Required arguments:
   <version> Version number of the tool
 "
