@@ -1,5 +1,6 @@
 #! /bin/bash
 
+set -x -v
 
 function md5 {
     (
@@ -18,44 +19,6 @@ function get_basedir {
     fi
 }
 
-function create_invoke_file {
-
-    local filepath=$1
-
-    cat > $filepath <<EOF
-java
-    -Xmx1024m
-    -classpath <executable>
-    -Dfindbugs.home="\${TOOL_DIR}/<tool-dir>"
-    <main-class>
-    -pluginList <plugin>
-    -effort:<effort> 
-    -exclude <exfile>
-    -include <infile>
-    -xml:withMessages
-    -projectName <package-name-version>
-    -output <assessment-report>
-    -auxclasspath "<auxclasspath%:>:<bootclasspath%:>"
-    -sourcepath <srcdir%:>
-    -xargs
-EOF
-}
-
-function create_tool_defaults_conf {
-
-    local filepath=$1
-    local plugins=$2
-
-    cat > $filepath <<EOF    
-effort=max
-main-class=edu.umd.cs.findbugs.FindBugs2
-EOF
-
-    if [[ -n $plugins ]]; then
-	echo "plugin=$plugins" >> $filepath
-    fi
-}
-
 function copy_file {
     local url="$1"
     local dir="$2"
@@ -70,11 +33,53 @@ function copy_file {
     )
 }
 
+function create_invoke_file {
+
+    local filepath=$1
+
+    cat > $filepath <<EOF
+java
+    -Xmx1024m
+    -classpath <executable>
+    -Dfindbugs.home="\${TOOL_DIR}/<tool-dir>"
+    <main-class>
+    -pluginList <plugin>
+    -effort:<effort> 
+    -exclude <exclude-bugs>
+    -include <include-bugs>
+    -xml:withMessages
+    -projectName <package-name-version>
+    -output <assessment-report>
+    -auxclasspath "<auxclasspath%:>:<bootclasspath%:>"
+    -sourcepath <srcdir%:>
+    -xargs
+EOF
+}
+
+function create_tool_defaults_conf {
+
+    local filepath="$1"
+    local exclude="$2"
+    local include="$3"
+    local plugins="$4"
+
+    cat > "$filepath" <<EOF
+effort=max
+main-class=edu.umd.cs.findbugs.FindBugs2
+EOF
+
+    [[ -f "$exclude" ]] && echo "exclude-bugs=\${VMINPUTDIR}/$exclude" >> "$filepath"
+    [[ -f "$include" ]] && echo "include-bugs=\${VMINPUTDIR}/$include" >> "$filepath"
+    [[ -n "$plugins" ]] && echo "plugin=$plugins" >> "$filepath"
+}
+
 function create_all {
     
     local tool_version="$1"; shift
     local out_dir="$1"; shift
     local tool_url="$1"; shift
+    local exclude="$1"; shift
+    local include="$1"; shift
     
     declare -a plugins
     plugins=($@)
@@ -90,7 +95,7 @@ function create_all {
 
     mkdir -p $tool_dir/noarch/{in-files,swamp-conf}
 
-    copy_file $tool_url "$tool_dir/noarch/in-files"
+    copy_file "$tool_url" "$tool_dir/noarch/in-files"
     local exit_code=$?
 
     if [[ $exit_code -ne 0 ]]; then
@@ -99,6 +104,9 @@ function create_all {
     fi
 
     local tool_archive="$tool_dir/noarch/in-files/$(basename $tool_url)"
+
+    [[ -f "$exclude" ]] && copy_file "$exclude" "$tool_dir/noarch/in-files"
+    [[ -f "$include" ]] && copy_file "$include" "$tool_dir/noarch/in-files"
 
     declare -a valid_plugins
     for url in ${plugins[*]}; do
@@ -115,7 +123,10 @@ function create_all {
     create_invoke_file $tool_invoke_file
 
     local tool_defaults_conf="$tool_dir/noarch/in-files/tool-defaults.conf"
-    create_tool_defaults_conf $tool_defaults_conf $(printf "\${VMINPUTDIR}/%s:" "${valid_plugins[@]}")
+    create_tool_defaults_conf $tool_defaults_conf \
+	"$exclude" \
+        "$include" \
+	$(printf "\${VMINPUTDIR}/%s:" "${valid_plugins[@]}")
 
     local tool_conf="$tool_dir/noarch/in-files/tool.conf"
 
@@ -150,6 +161,8 @@ function main {
     local version=
     local out_dir=
     local tool_url=
+    local exclude=false
+    local include=false
     declare -a plugins
 
     if [[ $# -lt 1 ]]; then
@@ -165,13 +178,21 @@ function main {
             tool_url="$2"; 
 	    shift; 
 	    ;;
-	    (-o|-O|--outdir)
+	    (-O|--outdir)
             out_dir="$2"; 
 	    shift;
 	    ;;
 	    (-P|--plugin)
 	    plugins[${#plugins[*]}]="$2"
 	    shift;
+	    ;;
+	    (-E|--exclude)
+            exclude="$2"; 
+	    shift; 
+	    ;;
+	    (-I|--include)
+            include="$2"; 
+	    shift; 
 	    ;;
 	    (-h|-H|--help)
             echo -e "$USAGE_STR";
@@ -193,7 +214,8 @@ function main {
     tool_url="${tool_url:-http://prdownloads.sourceforge.net/findbugs/findbugs-noUpdateChecks-$version.zip}"
     out_dir="${out_dir:-$PWD}"
 
-    create_all "$version" "$out_dir" "$tool_url" "${plugins[@]}"
+    create_all "$version" "$out_dir" "$tool_url" \
+	"$exclude" "$include" "${plugins[@]}"
 }
 
 main $@
