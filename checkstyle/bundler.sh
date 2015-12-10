@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -x -v
+#set -x -v
 
 function md5 {
     (
@@ -38,7 +38,6 @@ function copy_file {
 	    silent_opt='--silent'
 	fi
 	curl $silent_opt --location --remote-name "$url"
-
     )
 }
 
@@ -48,19 +47,15 @@ function create_invoke_file {
 
     cat > $filepath <<EOF
 java
-    -Xmx512m
-    -Djava.ext.dirs="\${TOOL_DIR}/<tool-dir>/lib"
-    <main-class>
-     -verbose
-     -stress
-     -language java
-     -rulesets <rulesets%,>
-     -format <output-format>
-     -reportfile <assessment-report>
-     -version <source>
-     -encoding <encoding>
-     -auxclasspath "<auxclasspath%:>:<bootclasspath%:>"
-     -dir <srcfile%,>
+    -Dcheckstyle.suppressions.file=<checkstyle-suppressions-file>
+    -Dtranslation.severity=<translation-severity>
+    -Dcheckstyle.header.file=<checkstyle-header-file>
+    -Dcheckstyle.importcontrol.file=<checkstyle-importcontrol-file>
+    -jar <executable>
+    -f xml
+    -o <assessment-report>
+    -c <configuration-file>
+    <srcfile% >
 EOF
 }
 
@@ -68,14 +63,17 @@ function create_tool_defaults_conf {
 
     local filepath="$1"
     local rule_set="$2"
+    local suppress_set="$3"
 
     cat > "$filepath" <<EOF
-application=pmd
-main-class=net.sourceforge.pmd.PMD
-output-format=xml
+translation-severity=error
+checkstyle-header-file=\${TOOL_DIR}/<tool-dir>/java.header
+checkstyle-importcontrol-file=\${TOOL_DIR}/<tool-dir>/import-control.xml
 EOF
 
-    [[ -f "$rule_set" ]] && echo "rulesets=\${VMINPUTDIR}/$(basename $rule_set)" >> "$filepath"
+    [[ -f "$rule_set" ]] && echo "configuration-file=\${VMINPUTDIR}/$(basename $rule_set)" >> "$filepath"
+    [[ -f "$suppress_set" ]] && echo "checkstyle-suppressions-file=\${VMINPUTDIR}/$(basename $suppress_set)" >> "$filepath"
+
 }
 
 function create_all {
@@ -84,7 +82,7 @@ function create_all {
     local out_dir="$2";
     local tool_url="$3";
     local rule_set="$4"
-    local tool_type=pmd
+    local tool_type=checkstyle
     local tool_dir="$out_dir/$tool_type-$tool_version"
 
     if [[ -d "$tool_dir" ]]; then
@@ -109,41 +107,47 @@ function create_all {
 
     [[ -f "$rule_set" ]] && copy_file "$rule_set" "$tool_dir/noarch/in-files"
 
+    local suppress_set="$tool_dir/noarch/in-files/uw_suppressions.xml"
+cat > "$suppress_set" <<EOF
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+</suppressions>
+EOF
+
     local tool_defaults_conf="$tool_dir/noarch/in-files/tool-defaults.conf"
-    create_tool_defaults_conf "$tool_defaults_conf" "$rule_set"
+    create_tool_defaults_conf "$tool_defaults_conf" "$rule_set" "$suppress_set"
 
     local tool_conf="$tool_dir/noarch/in-files/tool.conf"
 
-    cat > "$tool_conf" <<EOF
+    cat > $tool_conf <<EOF
 tool-archive=$(basename $tool_archive)
 tool-dir=$(get_basedir $tool_archive)
 tool-invoke=$(basename $tool_invoke_file)
 tool-defaults=$(basename $tool_defaults_conf)
 tool-type=$tool_type
 tool-version=$tool_version
-executable=net.sourceforge.pmd.PMD
+executable=checkstyle-$tool_version-all.jar
 EOF
-
-   local tool_version_number=$(echo "$version" | tr -d '.')
-   if (( tool_version_number >= 530 )); then
-       echo 'valid-exit-status=[0,4]' >> "$tool_conf"
-   fi
 
     md5 "$tool_dir"
 }
 
 readonly USAGE_STR="
 Usage:
-  $0 [(-O|--outdir) <path-to-output-dir>]? [(-U|--url) <archive-url]? [(-R|--ruleset) <ruleset-url>]* <version>
+  $0 [(-O|--outdir) <output-directory-path>]? [(-U|--url) <tool-archive-url]? [(-R|--ruleset-url) <ruleset-url>]* <version>
 
 Optional arguments:
-  [(-O|--outdir) <path-to-output-dir>]  #Path to the directory to create/copy files. Default is \$PWD
-  [(-U|--url) <archive-url] URL for the tool, If the url starts with http(s), file is downloaded from the internet
-  [(-R|--ruleset) <ruleset-url>] URL for a ruleset
+  [(-O|--outdir) <output-directory-path>]  : Path to the directory to create/copy files. Default is \$PWD
+  [(-U|--url) <tool-archive-url] : URL for the tool, If the url starts with http(s), file is downloaded from the internet
 
 Required arguments:
-  <version> Version number of the tool
-  <ruleset-url>  URL for a ruleset
+  [(-R|--ruleset) <ruleset-url>] : URL for a ruleset file
+  <version> : Version number of the tool
 "
 
 function main {
@@ -151,7 +155,7 @@ function main {
     local version=
     local out_dir=
     local tool_url=
-    local rule_set=false
+    local rule_set=
 
     if [[ $# -lt 1 ]]; then
 	echo -e "$USAGE_STR"
@@ -178,11 +182,13 @@ function main {
             echo -e "$USAGE_STR";
 	    exit 0;
 	    ;;
-	    ([[:digit:]][.][[:digit:]][.][[:digit:]])
-	    version="$key";
-	    ;;
 	    (*)
-	    rulesets="$key"
+	    if egrep --quiet '^[[:digit:]][.][[:digit:]]{1,2}([.][[:digit:]])?$' <(echo "$key"); then
+		version="$key";
+	    else
+		rule_set="$key";
+	    fi
+	    ;;
 	esac
 	shift;
     done
@@ -199,7 +205,7 @@ function main {
 	exit 1
     fi
 
-    tool_url="${tool_url:-http://downloads.sourceforge.net/project/pmd/pmd/$version/pmd-bin-$version.zip}"
+    tool_url="${tool_url:-http://sourceforge.net/projects/checkstyle/files/checkstyle/$version/checkstyle-$version-bin.zip}"
     out_dir="${out_dir:-$PWD}"
 
     create_all "$version" "$out_dir" "$tool_url" "$rule_set" 
