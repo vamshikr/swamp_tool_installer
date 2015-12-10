@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -x -v
+
 function md5 {
     (
 	cd $1
@@ -64,7 +66,7 @@ main-class=net.sourceforge.pmd.PMD
 output-format=xml
 EOF
 
-    [[ -f "$rule_set" ]] && echo "rulesets=\${VMINPUTDIR}/$(basename $rule_set)"
+    [[ -f "$rule_set" ]] && echo "rulesets=\${VMINPUTDIR}/$(basename $rule_set)" >> "$filepath"
 }
 
 function create_all {
@@ -93,10 +95,10 @@ function create_all {
 
     local tool_archive="$tool_dir/noarch/in-files/$(basename $tool_url)"
 
-    [[ -f "$rule_set" ]] && copy_file "$rule_set" "$tool_dir/noarch/in-files"
-
     local tool_invoke_file="$tool_dir/noarch/in-files/tool-invoke.txt"
     create_invoke_file "$tool_invoke_file"
+
+    [[ -f "$rule_set" ]] && copy_file "$rule_set" "$tool_dir/noarch/in-files"
 
     local tool_defaults_conf="$tool_dir/noarch/in-files/tool-defaults.conf"
     create_tool_defaults_conf "$tool_defaults_conf" "$rule_set"
@@ -114,7 +116,7 @@ executable=net.sourceforge.pmd.PMD
 tool-search-class-files=no
 EOF
 
-    md5 $tool_dir
+    md5 "$tool_dir"
 }
 
 readonly USAGE_STR="
@@ -154,10 +156,6 @@ function main {
 	    ;;
 	    (-O|--outdir)
             out_dir="$2"; 
-	    shift;
-	    ;;
-	    (-P|--plugin)
-	    plugins[${#plugins[*]}]="$2"
 	    shift;
 	    ;;
 	    (-R|--ruleset)
