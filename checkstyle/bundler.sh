@@ -105,9 +105,9 @@ function create_all {
     local tool_invoke_file="$tool_dir/noarch/in-files/tool-invoke.txt"
     create_invoke_file "$tool_invoke_file"
 
-    [[ -f "$rule_set" ]] && copy_file "$rule_set" "$tool_dir/noarch/in-files"
+    [[ -f "$rule_set" ]] && copy_file "$rule_set" "$tool_dir/noarch/in-files/"
 
-    local suppress_set="$tool_dir/noarch/in-files/uw_suppressions.xml"
+    local suppress_set="$tool_dir/noarch/in-files/swamp_suppressions.xml"
 cat > "$suppress_set" <<EOF
 <?xml version="1.0"?>
 
@@ -120,7 +120,9 @@ cat > "$suppress_set" <<EOF
 EOF
 
     local tool_defaults_conf="$tool_dir/noarch/in-files/tool-defaults.conf"
-    create_tool_defaults_conf "$tool_defaults_conf" "$rule_set" "$suppress_set"
+    create_tool_defaults_conf "$tool_defaults_conf" \
+	"$tool_dir/noarch/in-files/swamp_checkstyle_checks.xml" \
+	"$suppress_set"
 
     local tool_conf="$tool_dir/noarch/in-files/tool.conf"
 
@@ -132,6 +134,7 @@ tool-defaults=$(basename $tool_defaults_conf)
 tool-type=$tool_type
 tool-version=$tool_version
 executable=checkstyle-$tool_version-all.jar
+supported-language-version=java-7 java-8
 EOF
 
     md5 "$tool_dir"
@@ -208,6 +211,7 @@ function main {
     tool_url="${tool_url:-http://sourceforge.net/projects/checkstyle/files/checkstyle/$version/checkstyle-$version-bin.zip}"
     out_dir="${out_dir:-$PWD}"
 
+    echo create_all "$version" "$out_dir" "$tool_url" "$rule_set" 
     create_all "$version" "$out_dir" "$tool_url" "$rule_set" 
 }
 

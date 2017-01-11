@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -x -v
+#set -x -v
 
 function md5 {
     (
@@ -122,11 +122,12 @@ tool-defaults=$(basename $tool_defaults_conf)
 tool-type=$tool_type
 tool-version=$tool_version
 executable=net.sourceforge.pmd.PMD
+supported-language-version=java-7 java-8
 EOF
 
    local tool_version_number=$(echo "$version" | tr -d '.')
    if (( tool_version_number >= 530 )); then
-       echo 'valid-exit-status=[0,4]' >> "$tool_conf"
+       echo 'valid-exit-status=[04]' >> "$tool_conf"
    fi
 
     md5 "$tool_dir"

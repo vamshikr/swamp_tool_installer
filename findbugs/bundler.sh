@@ -141,6 +141,13 @@ executable=lib/findbugs.jar
 tool-use-input-file=yes
 EOF
 
+local supported_versions='java-7 java-8'
+if egrep --quiet '^2.[0-9].[0-9]' <(echo "$tool_version") ; then
+    supported_versions='java-7'
+fi
+
+echo "supported-language-version=$supported_versions" >> $tool_conf
+
     md5 $tool_dir
 }
 
@@ -174,9 +181,9 @@ function main {
     fi
 
     while test $# -gt 0; do
-	local key="$1"
+	local arg="$1"
 
-	case "$key" in
+	case "$arg" in
 	    (-R|--url)
             tool_url="$2"; 
 	    shift; 
@@ -202,7 +209,7 @@ function main {
 	    exit 0;
 	    ;;
 	    ([[:digit:]][.][[:digit:]][.][[:digit:]])
-	    version="$key";
+	    version="$arg";
 	    ;;
 	esac
 	shift;
