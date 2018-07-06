@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -x -v
+#set -x -v
 
 function md5 {
     (
