@@ -39,7 +39,8 @@ function create_invoke_file {
 
     cat > $filepath <<EOF
 java
-    -Xmx1024m
+    <max-heap>
+    <min-stack>
     -classpath <executable>
     -Dfindbugs.home="\${TOOL_DIR}/<tool-dir>"
     <main-class>
@@ -64,6 +65,8 @@ function create_tool_defaults_conf {
     local plugins="$4"
 
     cat > "$filepath" <<EOF
+max-heap=-Xmx1024m
+min-stack=-Xss2m
 effort=max
 main-class=edu.umd.cs.findbugs.FindBugs2
 EOF

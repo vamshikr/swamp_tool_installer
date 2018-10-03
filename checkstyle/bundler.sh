@@ -135,6 +135,7 @@ tool-type=$tool_type
 tool-version=$tool_version
 executable=checkstyle-$tool_version-all.jar
 supported-language-version=java-7 java-8
+tool-language-version=java-8
 EOF
 
     md5 "$tool_dir"

@@ -48,7 +48,7 @@ function create_invoke_file {
 
     cat > $filepath <<EOF
 java
-    -Xmx512m
+    <max-heap>
     -Djava.ext.dirs="\${TOOL_DIR}/<tool-dir>/lib"
     <main-class>
      -verbose
@@ -73,6 +73,7 @@ function create_tool_defaults_conf {
 application=pmd
 main-class=net.sourceforge.pmd.PMD
 output-format=xml
+max-heap=-Xmx1024M
 EOF
 
     [[ -f "$rule_set" ]] && echo "rulesets=\${VMINPUTDIR}/$(basename $rule_set)" >> "$filepath"
@@ -123,6 +124,7 @@ tool-type=$tool_type
 tool-version=$tool_version
 executable=net.sourceforge.pmd.PMD
 supported-language-version=java-7 java-8
+tool-language-version=java-8
 EOF
 
    local tool_version_number=$(echo "$version" | tr -d '.')
