@@ -1,11 +1,10 @@
 #! /bin/bash
 
-#set -x -v
 
-function md5 {
+function md5_sum {
     (
-	cd $1
-	find . -type f ! -name md5sum -exec md5sum '{}' ';' > ./md5sum;
+	    cd $1
+	    find . -type f ! -name md5sum -exec md5 '{}' ';' | tr -d '()' | awk '{print $4, $2}' > ./md5sum;
     )
 }
 
@@ -13,9 +12,9 @@ function get_basedir {
     local archive="$1"
 
     if [[ "$archive" == *.zip ]]; then
-	zipinfo -1 "$archive" | sed -n -r 's@([^/]+)/.+@\1@p' | uniq
+	    zipinfo -1 "$archive" | sed -n -E 's@([^/]+)/.+@\1@p' | uniq
     elif [[ "$archive" == *.tar.gz ]]; then
-	tar tf "$archive" | sed -n -r 's@([^/]+)/.+@\1@p' | uniq
+	    tar tf "$archive" | sed -n -E 's@([^/]+)/.+@\1@p' | uniq
     fi
 }
 
@@ -24,20 +23,21 @@ function copy_file {
     local dir="$2"
 
     if egrep --quiet --invert-match '^(http[s]?|file|ftp)://' <(echo "$url"); then
-	url="file://$(readlink -e $url)"
+	    #url="file://$(readlink -e $url)"
+	    url="file://$url"
     fi
 
     (
-	cd "$dir"
-	local silent_opt=
-	#curl --silent --location --remote-name "$url"
-	if egrep --quiet '^(http[ s]?|file|ftp)://' <(echo "$url"); then
-	    echo "Downloading $url"
-	else
-	    echo "Copying $url"
-	    silent_opt='--silent'
-	fi
-	curl $silent_opt --location --remote-name "$url"
+	    cd "$dir"
+	    local silent_opt=
+	    #curl --silent --location --remote-name "$url"
+	    if egrep --quiet '^(http[s]?|file|ftp)://' <(echo "$url"); then
+	        echo "Downloading $url"
+	    else
+	        echo "Copying $url"
+	        silent_opt='--silent'
+	    fi
+	    curl $silent_opt --location --remote-name "$url"
 
     )
 }
@@ -89,8 +89,8 @@ function create_all {
     local tool_dir="$out_dir/$tool_type-$tool_version"
 
     if [[ -d "$tool_dir" ]]; then
-	echo "Error: Tool directory already exists: $tool_dir";
-	exit ;
+	    echo "Error: Tool directory already exists: $tool_dir";
+	    exit;
     fi
 
     mkdir -p $tool_dir/noarch/{in-files,swamp-conf}
@@ -99,8 +99,8 @@ function create_all {
     local exit_code=$?
 
     if [[ $exit_code -ne 0 ]]; then
-	echo "Error: copying $tool_url failed, exit code returne: $exit_code"
-	exit 1;
+	    echo "Error: copying $tool_url failed, exit code returne: $exit_code"
+	    exit 1;
     fi
 
     local tool_archive="$tool_dir/noarch/in-files/$(basename $tool_url)"
@@ -132,7 +132,7 @@ EOF
        echo 'valid-exit-status=[04]' >> "$tool_conf"
    fi
 
-    md5 "$tool_dir"
+    md5_sum "$tool_dir"
 }
 
 readonly USAGE_STR="
@@ -148,6 +148,8 @@ Required arguments:
   <version> Version number of the tool
   <ruleset-url>  URL for a ruleset
 "
+
+set -x;
 
 function main {
 
