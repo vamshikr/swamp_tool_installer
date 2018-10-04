@@ -1,0 +1,22 @@
+== Checkstyle
+
+
+=== Create Checkstyle Tool Binaries
+
+* Download source code from https://github.com/checkstyle/checkstyle/releases
+
+* unarchive the zip file, the source code will checkstyle-checkstyle-X.Y[.Z] 
+
+* change to the package directory
+
+* edit the file `src/main/java/com/puppycrawl/tools/checkstyle/Main.java`, in the `public static void main` function replace the line `exitStatus = errorCounter;` with `exitStatus = 1;` 
+
+* To build run `mvn -e -Passembly package`
+
+* The final jar files are in `./target/checkstyle-X.Y[.Z]-bin.zip`, this should be the tool archive.
+
+
+=== Usage
+```
+./bundler.sh --outdir $PWD --url $PWD/source/checkstyle-checkstyle-8.12/target/checkstyle-8.12-bin.zip --ruleset-url ./resources/swamp_checkstyle_checks.xml 8.12
+```

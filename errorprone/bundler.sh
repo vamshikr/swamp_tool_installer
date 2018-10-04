@@ -23,7 +23,7 @@ function md5sum {
 function md5 {
     (
 	    cd $1
-	    find . -type f ! -name md5sum -exec /sbin/md5 '{}' ';' > ./md5sum;
+	    find . -type f ! -name md5sum -exec md5sum '{}' ';' > ./md5sum;
     )
 }
 
@@ -181,7 +181,7 @@ Usage:
 
 Optional arguments:
   [(-O|--outdir) <path-to-output-dir>]  #Path to the directory to create/copy files. Default is \$PWD
-  [(-R|--url) <url-for-the-archive] URL for the tool, If the url starts with http(s), file is downloaded from the internet
+  [(-R|--url) <url-for-the-archive] URL for the tool ant jar, If the url starts with http(s), file is downloaded from the internet, download the version you want here https://mvnrepository.com/artifact/com.google.errorprone/error_prone_ant
 
 Required arguments:
   <version> Version number of the tool

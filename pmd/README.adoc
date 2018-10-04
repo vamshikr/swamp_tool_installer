@@ -1,0 +1,6 @@
+== PMD
+
+=== USAGE
+```
+./bundler.sh --outdir $PWD/out/ --url https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.8.0/pmd-bin-6.8.0.zip --ruleset /p/swamp/home/vamshi/mnt/v1/tool_installer/pmd/resources/pmd-rules.xml 6.8.0
+```

@@ -1,0 +1,7 @@
+== Errorprone Tool Builder
+
+==== USAGE
+
+```
+./bundler.sh --outdir $PWD/out --url http://central.maven.org/maven2/com/google/errorprone/error_prone_ant/2.3.1/error_prone_ant-2.3.1.jar 2.3.1
+```

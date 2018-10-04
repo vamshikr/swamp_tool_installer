@@ -2,14 +2,11 @@
 
 set -x
 
-function md5sum { 
-    md5 $1 | tr -d '()' | awk '{print $4, $2}'
-}
 
 function md5 {
     (
 	    cd $1
-	    find . -type f ! -name md5sum -exec /sbin/md5 '{}' ';' > ./md5sum;
+	    find . -type f ! -name md5sum -exec md5sum '{}' ';' > ./md5sum;
     )
 }
 
