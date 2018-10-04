@@ -4,7 +4,7 @@
 function get_bug_patterns {
     
         
-    local BUG_PATTERN_URL="http://errorprone.info/bugpatterns"
+    local BUG_PATTERN_URL="https://errorprone.info/bugpatterns"
 
     curl \
         --silent \
@@ -79,7 +79,7 @@ function create_invoke_file {
     
     cat > $filepath <<EOF
 java 
-	 -Xbootclasspath/"a:<bootclasspath%:>:<executable>"
+	 -Xbootclasspath/"p:<bootclasspath%:>:<executable>"
 	 -classpath <auxclasspath%:>
 	 <main-class>
 	 -XepIgnoreUnknownCheckNames
@@ -93,7 +93,6 @@ EOF
 	 -implicit:none
 	 -Xmaxerrs <max-errors>
 	 -Xmaxwarns <max-errors>
-	 -Xstdout <assessment-report>
  	 -target <target>
 	 -source <source>
 	 -encoding <encoding>
@@ -170,6 +169,7 @@ tool-report-exit-code-msg=(Source|Target) option 1.[345] is no longer supported.
 tool-report-exit-code-task-name=errorprone-javasource-compatibility
 supported-language-version=java-7 java-8
 tool-language-version=java-8
+report-on-stderr=true
 EOF
 
     md5 $tool_dir
