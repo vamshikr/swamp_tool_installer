@@ -25,4 +25,7 @@
 
 === Flow
 
-* Dow
+* Dowload `flow-linux64-vX.Y.Z.zip` from https://github.com/facebook/flow/releases. This is the tool bundle.
+
+
+
