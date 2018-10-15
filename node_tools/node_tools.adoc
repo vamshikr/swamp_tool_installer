@@ -1,0 +1,28 @@
+== Get Web Tools
+
+=== ES Lint
+
+* Download ESLint source code from `https://github.com/eslint/eslint/releases`
+
+* unzip the archive, change into the directory created and run `npm install`
+
+* The tool executable is `./bin/eslint.js`
+
+* zip the archive back, this is the _tool bundle_.
+
+
+
+=== CSS Lint
+
+* Download ESLint source code from `https://github.com/CSSLint/csslint/releases`
+
+* unzip the archive, change into the directory created and run `npm install`
+
+* The tool main binary is `./bin/eslint.js`, add executable permission to the tool.
+
+* zip the archive back, this is the _tool bundle_.
+
+
+=== Flow
+
+* Dow

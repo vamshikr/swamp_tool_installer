@@ -1,0 +1,18 @@
+== Ruby Tools
+
+=== Get Tool Bundles
+
+Run the script `get_tool.sh` with _tool-type_ and _tool-version_ as arguments
+
+Example:
+```
+./get_tool.sh reek 5.2.0
+```
+
+The above command creates `reek-5.2.0` directory and downloads gems for reek and its dependencies into it
+
+=== Install Tool from gems
+Change to the directory containing the `.gem` files and run the command:
+```
+gem install --no-document --user-install --local '*.gem'
+```

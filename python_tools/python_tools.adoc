@@ -1,0 +1,71 @@
+== Get Python Tools
+
+Getting a new tool bundle (wheels for tool and its dependencies)
+
+=== Get Wheels for Python-3 Tools on Ubuntu-16.04-64
+
+==== Start a Python-3 Virtual Environment on Ubuntu-16.04-64
+
+.Install Pip and Virtual Environment
+
+```
+sudo apt-get install -y python3-venv python3-pip
+```
+
+.Create New Virtual Environment
+
+```
+pyvenv venv3
+```
+
+Creates a virtual environment in a directory `venv2` in CWD
+
+.Start Virtual Environment session
+```
+source venv3/bin/activate
+```
+
+==== Start a Python-2 Virtual Environment on Ubuntu-16.04-64
+
+.Install Pip and Virtual Environment
+
+```
+sudo apt-get install -y python-virtualenv python-pip
+```
+
+.Create New Virtual Environment in a directory `venv2` in CWD
+
+```
+virtualenv venv2
+```
+
+
+.Start Virtual Environment session
+```
+source venv2/bin/activate
+```
+
+==== Download tools
+
+Start a virtual environment of Python-3 or Python-2
+
+.Download a particular version of a python module and its dependencies from PyPI into particular directory
+```
+python -m pip download --dest <dir-path> --no-cache-dir <module>==<version>
+```
+
+
+.Example: Download Pylint 2.1.1 version from PyPI into directory pylint-2.1.1
+```
+python -m pip download --dest pylint-2.1.1 --no-cache-dir pylint==2.1.1
+```
+
+.Example: Download Bandit 1.5.1 version from PyPI into directory bandit-1.5.1
+```
+python -m pip download --dest bandit-1.5.1 --no-cache-dir bandit==1.5.1
+```
+
+.Example: Download Flake8 3.5.0 version  from PyPI into directory flake8-3.5.0
+```
+python -m pip download --dest flake8-3.5.0 --no-cache-dir flake8==3.5.0
+```
