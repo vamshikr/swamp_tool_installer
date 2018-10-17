@@ -1,0 +1,43 @@
+
+== .NET Tools
+
+=== Security Code Scan
+
+* Do this in a VM with `dotnet` environment
+
+* Create a new dotnet console application with  `dotnet new console -o new_app`
+
+* change directory to `new_app`
+
+* run `rm -f ~/.nuget/packages/*`. This will remove all the cached dotnet package references
+
+* Goto https://www.nuget.org/packages/SecurityCodeScan/ and note the latest version of the release.
+
+* run `dotnet add package SecurityCodeScan --version X.Y.Z` to add `SecurityCodeScan` dependency to `new_app` application
+
+* The above command will fetch files for `SecurityCodeScan` and put it in `~/.nuget/packages/` as `securitycodescan` directory. Copy the `securitycodescan` directory to some place else and archive it. This will be the tool archive.
+
+=== Code Cracker
+
+* Do this in a VM with `dotnet` environment
+
+* Create a new dotnet console application with  `dotnet new console -o new_app`
+
+* change directory to `new_app`
+
+* run `rm -f ~/.nuget/packages/*`. This will remove all the cached dotnet package references
+
+* Goto https://www.nuget.org/packages/codecracker.CSharp and note the latest version of the release.
+
+* run `dotnet add package codecracker.CSharp 	--version X.Y.Z` to add `codecracker.CSharp` dependency to `new_app` application
+
+* The above command will fetch files for `SecurityCodeScan` and put it in `~/.nuget/packages/` as `codecracker.csharp` directory. Copy the `codecracker.csharp` directory to some place else and archive it. This will be the tool archive.
+
+
+=== Devskim
+
+* From https://github.com/Microsoft/DevSkim, download the `.deb` file of the latest release version of Devskim
+
+* Add this to a `devskim-X.Y.Z` directory and archive it. This is your tool archive.
+
+* Tool install command is `sudo dpkg -i devskim-X.Y.Z_amd64.deb`
