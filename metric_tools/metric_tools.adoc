@@ -1,0 +1,13 @@
+== Metric Tools
+
+=== Cloc
+
+* Download the latest release version of Cloc source code archive from https://github.com/AlDanial/cloc/releases
+
+* The tool executable is `cloc` in the main tool directory
+
+=== Lizard
+
+* Download the latest release version of Lizard source code archive from https://pypi.org/project/lizard/#files
+
+* The tool executable is `lizard.py` in the main tool directory
