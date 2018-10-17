@@ -1,0 +1,20 @@
+== Tool Invoke
+
+A `tool-invoke` file is a template file containing a SWAMP tool's executable command.
+
+Example for Flake8:
+```<executable>
+    --verbose
+    --exit-zero
+    --format=pylint
+	--config="$VMINPUTDIR/flake8.config"
+    <python-3-src% >
+```
+
+Non C/C++ Assessment frameworks in SWAMP has an program that takes the template file, along with a dictionary, and environment variables, and generates an executable command.
+
+The first line in a tool invoke file is the path or name of the executable or a variable. Each line is an option or an argument.
+
+The names enclosed in `<>` are variables and are looked up in the dictionary. If the variable is not in the dictionary, the option or argument is not added to the executable command.
+
+If there is a `%` in the variable name (Example `<python-3-src% >`), the characters after `%` will be used as a separator provided the value for the key in the dictionary is a list.
